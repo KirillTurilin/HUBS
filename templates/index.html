@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="landing-container">
+    <h1 class="landing-title">Welcome to HUBs</h1>
+    <p class="landing-subtitle">Connect with friends and chat with people around the world.</p>
+    
+    <div class="landing-buttons">
+        <a href="{{ url_for('login') }}" class="btn">Log In</a>
+        <a href="{{ url_for('register') }}" class="btn">Register</a>
+    </div>
+</div>
+{% endblock %} 

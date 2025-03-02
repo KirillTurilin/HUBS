@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - HUBs Messenger{% endblock %}
+
+{% block header %}Profile{% endblock %}
+
+{% block content %}
+<div class="profile-card">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ current_user.username[0].upper() }}
+        </div>
+        <div class="profile-name">
+            <h2>{{ current_user.username }}</h2>
+            <div class="profile-email">{{ current_user.email }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="settings-card">
+    <h3 class="settings-header">Settings</h3>
+    
+    <div class="setting-item">
+        <div class="setting-label">Dark Theme</div>
+        <form method="POST" action="{{ url_for('profile') }}" style="display: inline;">
+            <input type="hidden" name="action" value="toggle_theme">
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" {% if current_user.dark_mode %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </form>
+    </div>
+    
+    <div class="setting-item">
+        <div class="setting-label">Log Out</div>
+        <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('change', function() {
+            document.querySelector('form[action="{{ url_for("profile") }}"]').submit();
+        });
+    });
+</script>
+{% endblock %} 
