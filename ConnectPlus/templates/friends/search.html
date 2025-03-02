@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Friends - Connect+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-search me-2"></i>Find Friends</h4>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{% url 'friends:search' %}" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control search-input" placeholder="Search by username..." value="{{ request.GET.q|default:'' }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+                
+                {% if search_query %}
+                <h5 class="mb-3">Search results for "{{ search_query }}"</h5>
+                {% endif %}
+                
+                {% if users %}
+                <div class="row">
+                    {% for user_profile in users %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 friend-card">
+                            <div class="card-body text-center">
+                                <img src="{{ user_profile.get_avatar_url }}" alt="{{ user_profile.username }}" class="avatar-md mb-3">
+                                <h5 class="card-title">{{ user_profile.get_full_name }}</h5>
+                                <p class="text-muted mb-0">@{{ user_profile.username }}</p>
+                                
+                                {% if user_profile in friends %}
+                                <div class="friend-status status-accepted">
+                                    <i class="fas fa-check-circle"></i> Friend
+                                </div>
+                                {% elif user_profile in pending_requests %}
+                                <div class="friend-status status-pending">
+                                    <i class="fas fa-clock"></i> Pending
+                                </div>
+                                {% endif %}
+                                
+                                <div class="friend-actions">
+                                    {% if user_profile in friends %}
+                                    <form method="post" action="{% url 'friends:remove' user_profile.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger friend-action-btn" data-confirm="Are you sure you want to remove {{ user_profile.username }} from your friends?">
+                                            <i class="fas fa-user-minus"></i> Remove Friend
+                                        </button>
+                                    </form>
+                                    {% elif user_profile in pending_requests %}
+                                    <button type="button" class="btn btn-secondary" disabled>
+                                        <i class="fas fa-clock"></i> Request Pending
+                                    </button>
+                                    {% else %}
+                                    <form method="post" action="{% url 'friends:request_send' user_profile.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary friend-action-btn">
+                                            <i class="fas fa-user-plus"></i> Add Friend
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'accounts:profile' user_profile.username %}" class="btn btn-outline-secondary mt-2">
+                                        <i class="fas fa-user"></i> View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {% if search_query %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No users found matching "{{ search_query }}".
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary">
+                        <i class="fas fa-users me-2"></i> Search for people by username to connect with them.
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Friend Requests Section -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-clock me-2"></i>Friend Requests</h4>
+            </div>
+            <div class="card-body">
+                {% if friend_requests %}
+                <div class="row">
+                    {% for request in friend_requests %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 friend-card">
+                            <div class="card-body text-center">
+                                <img src="{{ request.from_user.get_avatar_url }}" alt="{{ request.from_user.username }}" class="avatar-md mb-3">
+                                <h5 class="card-title">{{ request.from_user.get_full_name }}</h5>
+                                <p class="text-muted mb-0">@{{ request.from_user.username }}</p>
+                                
+                                <div class="friend-status status-pending">
+                                    <i class="fas fa-clock"></i> Request
+                                </div>
+                                
+                                <div class="friend-actions d-flex justify-content-between mt-3">
+                                    <form method="post" action="{% url 'friends:request_respond' request.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="accept">
+                                        <button type="submit" class="btn btn-success friend-action-btn">
+                                            <i class="fas fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="post" action="{% url 'friends:request_respond' request.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="btn btn-danger friend-action-btn">
+                                            <i class="fas fa-times"></i> Decline
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <a href="{% url 'accounts:profile' request.from_user.username %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-user"></i> View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> You have no pending friend requests.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Your Friends Section -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-users me-2"></i>Your Friends</h4>
+            </div>
+            <div class="card-body">
+                {% if friends %}
+                <div class="row">
+                    {% for friend in friends %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 friend-card">
+                            <div class="card-body text-center">
+                                <img src="{{ friend.get_avatar_url }}" alt="{{ friend.username }}" class="avatar-md mb-3">
+                                <h5 class="card-title">{{ friend.get_full_name }}</h5>
+                                <p class="text-muted mb-0">@{{ friend.username }}</p>
+                                
+                                <div class="friend-status status-accepted">
+                                    <i class="fas fa-check-circle"></i> Friend
+                                </div>
+                                
+                                <div class="friend-actions">
+                                    <a href="{% url 'messenger:chat' friend.username %}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-comment"></i> Message
+                                    </a>
+                                    
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <a href="{% url 'accounts:profile' friend.username %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-user"></i> Profile
+                                        </a>
+                                        
+                                        <form method="post" action="{% url 'friends:remove' friend.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger friend-action-btn" data-confirm="Are you sure you want to remove {{ friend.username }} from your friends?">
+                                                <i class="fas fa-user-minus"></i> Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> You don't have any friends yet. Search for people to connect with!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -3,4 +3,12 @@ Flask-SQLAlchemy==3.0.3
 Flask-Login==0.6.2
 Flask-WTF==1.1.1
 Werkzeug==2.2.3
-email_validator==2.0.0 
+email_validator==2.0.0
+Django==4.2.4
+Pillow==10.0.0
+channels==4.0.0
+channels-redis==4.1.0
+django-crispy-forms==2.0
+crispy-bootstrap5==0.7
+python-magic==0.4.27
+daphne==4.0.0 

@@ -1,0 +1,262 @@
+/* Main Styles for Connect+ */
+
+:root {
+    --primary-color: #4a69bd;
+    --secondary-color: #6a89cc;
+    --light-bg: #f8f9fa;
+    --dark-bg: #212529;
+    --light-text: #212529;
+    --dark-text: #f8f9fa;
+    --border-color: #dee2e6;
+    --card-bg: #ffffff;
+    --hover-bg: #e9ecef;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--light-bg);
+    color: var(--light-text);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+body.dark-mode .navbar,
+body.dark-mode .footer,
+body.dark-mode .card {
+    background-color: #343a40 !important;
+    color: var(--dark-text);
+}
+
+body.dark-mode .card {
+    border-color: #495057;
+}
+
+body.dark-mode .text-muted {
+    color: #adb5bd !important;
+}
+
+body.dark-mode .form-control {
+    background-color: #495057;
+    color: var(--dark-text);
+    border-color: #6c757d;
+}
+
+body.dark-mode .bg-light {
+    background-color: #343a40 !important;
+}
+
+body.dark-mode .nav-link, 
+body.dark-mode .navbar-brand {
+    color: var(--dark-text);
+}
+
+/* Main Layout */
+main {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Cards & Containers */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Profile Elements */
+.profile-header {
+    padding: 2rem 0;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.avatar-lg {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+}
+
+.avatar-md {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Friend Request Cards */
+.friend-card {
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.friend-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.friend-card .friend-actions {
+    margin-top: 1rem;
+}
+
+.friend-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-pending {
+    background-color: #ffeeba;
+    color: #856404;
+}
+
+.status-accepted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Messages */
+.message-container {
+    max-height: 500px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 75%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    position: relative;
+}
+
+.message-sent {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 0.3rem;
+}
+
+.message-received {
+    align-self: flex-start;
+    background-color: var(--light-bg);
+    border-bottom-left-radius: 0.3rem;
+}
+
+body.dark-mode .message-received {
+    background-color: #495057;
+    color: var(--dark-text);
+}
+
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+/* Registration Steps */
+.registration-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.step:not(:last-child):after {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: var(--border-color);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--light-bg);
+    border: 2px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 10px;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.step.active .step-number {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.step.completed .step-number {
+    background-color: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .registration-steps {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .step {
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .step:not(:last-child):after {
+        width: 2px;
+        height: 100%;
+        top: 50%;
+        left: 25px;
+    }
+    
+    .friend-card {
+        margin-bottom: 1rem;
+    }
+} 

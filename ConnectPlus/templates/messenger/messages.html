@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - Connect+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-comments me-2"></i>Messages</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- Conversations list -->
+                    <div class="col-md-4 border-end">
+                        <div class="p-3 border-bottom">
+                            <div class="input-group">
+                                <input type="text" class="form-control search-input" placeholder="Search conversations...">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="conversations-list">
+                            {% if conversations %}
+                                {% for conversation in conversations %}
+                                <a href="{% url 'messenger:chat' conversation.other_user.username %}" class="conversation-item d-flex align-items-center p-3 border-bottom {% if conversation.other_user.username == current_chat.username %}active{% endif %}">
+                                    <div class="position-relative">
+                                        <img src="{{ conversation.other_user.get_avatar_url }}" alt="{{ conversation.other_user.username }}" class="avatar-md me-3">
+                                        {% if conversation.other_user.is_online %}
+                                        <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success" style="width: 12px; height: 12px;"></span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">{{ conversation.other_user.get_full_name }}</h6>
+                                            <small class="text-muted">{{ conversation.last_message.timestamp|date:"H:i" }}</small>
+                                        </div>
+                                        <p class="text-truncate mb-0 {% if conversation.unread_count %}fw-bold{% endif %}">
+                                            {% if conversation.last_message.sender == request.user %}
+                                            <span class="text-muted">You: </span>
+                                            {% endif %}
+                                            {{ conversation.last_message.content }}
+                                        </p>
+                                    </div>
+                                    {% if conversation.unread_count %}
+                                    <span class="badge bg-primary rounded-pill ms-2">{{ conversation.unread_count }}</span>
+                                    {% endif %}
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center p-4">
+                                    <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                                    <p>No conversations yet</p>
+                                    <p class="text-muted">Start a chat with one of your friends</p>
+                                    <a href="{% url 'friends:search' %}" class="btn btn-primary">
+                                        <i class="fas fa-users"></i> Find Friends
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Current conversation or welcome screen -->
+                    <div class="col-md-8">
+                        {% if current_chat %}
+                            <div class="chat-header p-3 border-bottom d-flex align-items-center">
+                                <img src="{{ current_chat.get_avatar_url }}" alt="{{ current_chat.username }}" class="avatar-sm me-2">
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">{{ current_chat.get_full_name }}</h5>
+                                    <small class="text-muted">
+                                        {% if current_chat.is_online %}
+                                        <span class="text-success">● Online</span>
+                                        {% else %}
+                                        Last seen {{ current_chat.last_login|timesince }} ago
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'accounts:profile' current_chat.username %}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-user"></i> Profile
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="message-container p-3" id="message-container">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                    <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                                        {{ message.content }}
+                                        <span class="message-time">{{ message.timestamp|date:"H:i" }}</span>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-comment-dots fa-3x text-muted mb-3"></i>
+                                        <p>No messages yet</p>
+                                        <p class="text-muted">Send a message to start the conversation</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="message-input-container p-3 border-top">
+                                <form method="post" action="{% url 'messenger:send_message' current_chat.username %}" id="message-form">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <textarea class="form-control" id="message-input" name="content" placeholder="Type a message..." rows="1" required></textarea>
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-5">
+                                <i class="fas fa-comments fa-5x text-muted mb-4"></i>
+                                <h4>Welcome to Connect+ Messenger</h4>
+                                <p class="text-muted">Select a conversation or start a new one</p>
+                                <a href="{% url 'friends:search' %}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus"></i> New Message
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-scroll to bottom of messages when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const messageContainer = document.getElementById('message-container');
+    if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+    
+    // Form submission with WebSocket
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    
+    if (messageForm && messageInput) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = messageInput.value.trim();
+            if (content) {
+                // Submit form with AJAX
+                fetch(messageForm.action, {
+                    method: 'POST',
+                    body: new FormData(messageForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Clear input
+                        messageInput.value = '';
+                        messageInput.style.height = 'auto';
+                        
+                        // Add message to container
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message message-sent';
+                        messageDiv.innerHTML = content + '<span class="message-time">Just now</span>';
+                        messageContainer.appendChild(messageDiv);
+                        
+                        // Scroll to bottom
+                        messageContainer.scrollTop = messageContainer.scrollHeight;
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

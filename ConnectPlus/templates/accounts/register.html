@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Connect+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">Create Your Account</h4>
+            </div>
+            
+            <div class="card-body p-4">
+                <!-- Registration steps indicator -->
+                <div class="registration-steps mb-4">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Account</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Profile</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Photo</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Complete</div>
+                    </div>
+                </div>
+                
+                <form method="post" action="{% url 'accounts:register' %}">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Please correct the errors below:</p>
+                        {{ form.errors }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="text-danger">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="text-danger">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <div class="text-danger">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Your password must be at least 8 characters and can't be entirely numeric.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <div class="text-danger">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center py-3">
+                <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
