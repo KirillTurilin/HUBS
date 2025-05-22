@@ -1,7 +1,9 @@
 from django.shortcuts import render, HttpResponse
 from django.views import View
+from random import randint
 # Create your views here.
-def RandomNumber(request):
-    import random
-    number = random.randint(0,1000)
-    return HttpResponse(number)
+
+class RandomNumber(View):
+    def get(self, request):
+        answer = request.GET.get("howbig")
+        return HttpResponse(randint(0, int(answer)))
